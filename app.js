@@ -12,21 +12,13 @@ app.get('/downloadmp3', async (req, res, next) => {
     if (!ytdl.validateURL(url)) {
       return res.sendStatus(400);
     }
-    let title = 'audio';
 
-    await ytdl.getBasicInfo(
-      url,
-      {
+    let title = '',
+      info = await ytdl.getBasicInfo(url, {
         format: 'mp4',
-      },
-      (err, info) => {
-        if (err) throw err;
-        title = info.player_response.videoDetails.title.replace(
-          /[^\x00-\x7F]/g,
-          ''
-        );
-      }
-    );
+      });
+
+    title = info.videoDetails.title.replace(/[^\x00-\x7F]/g, '');
 
     res.header('Content-Disposition', `attachment; filename="${title}.mp3"`);
     ytdl(url, {
@@ -44,26 +36,19 @@ app.get('/downloadmp4', async (req, res, next) => {
     if (!ytdl.validateURL(url)) {
       return res.sendStatus(400);
     }
-    let title = 'video';
 
-    await ytdl.getBasicInfo(
-      url,
-      {
+    let title = '',
+      info = await ytdl.getBasicInfo(url, {
         format: 'mp4',
-      },
-      (err, info) => {
-        title = info.player_response.videoDetails.title.replace(
-          /[^\x00-\x7F]/g,
-          ''
-        );
-      }
-    );
+      });
+
+    title = info.videoDetails.title.replace(/[^\x00-\x7F]/g, '');
 
     res.header('Content-Disposition', `attachment; filename="${title}.mp4"`);
     ytdl(url, {
       format: 'mp4',
       filter: 'audioandvideo',
-      quality: 'highestvideo',
+      quality: 'highest',
     }).pipe(res);
   } catch (err) {
     console.error(err);
